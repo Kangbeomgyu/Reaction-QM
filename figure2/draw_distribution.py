@@ -4,50 +4,32 @@ import pickle
 from collections import defaultdict
 from matplotlib.colors import LogNorm
 
-def draw_adjacency_changes(ax, dft_adj_change_types, rgd1_adj_change_types, xtb_adj_change_types):
-    dft_sorted_dict = dict(sorted(dft_adj_change_types.items()))
-    adj_types_unique, dft_adj_counts = dft_sorted_dict.keys(), dft_sorted_dict.values()
-    xtb_sorted_dict = dict(sorted(xtb_adj_change_types.items()))
-    xtb_adj_counts = xtb_sorted_dict.values()
-    rgd1_adj_counts = [rgd1_adj_change_types[key] for key in adj_types_unique]
-    adj_types_str = [str(t) for t in adj_types_unique]
+def draw_adjacency_changes(ax, our_adj_change_types):
+    sorted_dict = dict(sorted(our_adj_change_types.items()))
+    rxn_types_unique, rxn_counts = sorted_dict.keys(), sorted_dict.values()
+    rxn_types_str = [str(t) for t in rxn_types_unique]
 
-    x = np.arange(len(adj_types_str))
-    bar1 = ax.bar(x - 0.2, rgd1_adj_counts, width=0.1, alpha=alpha, label='RGD1')
-    bar2 = ax.bar(x, xtb_adj_counts, width=0.1, alpha=alpha, label='GFN2-xTB')
-    bar3 = ax.bar(x + 0.2, dft_adj_counts, width=0.1, alpha=alpha, label='DFT')
-    ax.margins(y=0.1)
-    ax.bar_label(bar1, padding=1, fmt='%d', fontsize=bar_fontsize)
-    ax.bar_label(bar2, padding=1, fmt='%d', fontsize=bar_fontsize)
-    ax.bar_label(bar3, padding=1, fmt='%d', fontsize=bar_fontsize)
+    bar1 = ax.bar(rxn_types_str, rxn_counts, width=0.15, alpha=alpha, label='Our')
+    ax.bar_label(bar1, padding=1, fmt='%d', fontsize=8)
     ax.set_yscale('log')
+    ax.margins(y=0.1)
     ax.set_ylim(bottom=10)
-    ax.set_xticks(range(len(adj_types_str)))
-    ax.set_xticklabels(adj_types_str)
+    ax.set_xticks(range(len(rxn_types_str)))
+    ax.set_xticklabels(rxn_types_str)
     ax.tick_params(which='both', labelsize=12)
     ax.set_xlabel('Adjacency Change Types', fontsize=axis_fontsize, fontweight='bold')
     ax.set_ylabel('N$_{reactions}$', fontsize=axis_fontsize, fontweight='bold')
     ax.text(0.01, 0.99, 'a', transform=ax.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='left')
-    print(dft_sorted_dict)
-    print(xtb_sorted_dict)
 
-def draw_bond_order_changes(ax, dft_bo_change_types, rgd1_bo_change_types, xtb_bo_change_types):
-    dft_sorted_dict = dict(sorted(dft_bo_change_types.items()))
-    bo_unique, dft_bo_counts = dft_sorted_dict.keys(), dft_sorted_dict.values()
-    xtb_sorted_dict = dict(sorted(xtb_bo_change_types.items()))
-    xtb_bo_counts = xtb_sorted_dict.values()
-    rgd1_bo_counts = [rgd1_bo_change_types[key] for key in bo_unique]
+def draw_bond_order_changes(ax, our_bo_change_types):
+    sorted_dict = dict(sorted(our_bo_change_types.items()))
+    bo_unique, bo_counts = sorted_dict.keys(), sorted_dict.values()
     bo_unique_str = [str(t) for t in bo_unique]
 
-    x = np.arange(len(bo_unique_str))
-    bar1 = ax.bar(x - 0.2, rgd1_bo_counts, width=0.1, alpha=alpha, label='RGD1')
-    bar2 = ax.bar(x, xtb_bo_counts, width=0.1, alpha=alpha, label='GFN2-xTB')
-    bar3 = ax.bar(x + 0.2, dft_bo_counts, width=0.1, alpha=alpha, label='DFT')
+    bar1 = ax.bar(bo_unique_str, bo_counts, width=0.15, alpha=alpha, label='Our')
     ax.margins(y=0.1)
-    ax.bar_label(bar1, padding=1, fmt='%d', fontsize=bar_fontsize)
-    ax.bar_label(bar2, padding=1, fmt='%d', fontsize=bar_fontsize)
-    ax.bar_label(bar3, padding=1, fmt='%d', fontsize=bar_fontsize)
+    ax.bar_label(bar1, padding=1, fmt='%d', fontsize=8)
     ax.set_yscale('log')
     ax.set_ylim(bottom=10)
     ax.set_xticks(range(len(bo_unique_str)))
@@ -57,25 +39,15 @@ def draw_bond_order_changes(ax, dft_bo_change_types, rgd1_bo_change_types, xtb_b
     ax.set_ylabel('N$_{reactions}$', fontsize=axis_fontsize, fontweight='bold')
     ax.text(0.01, 0.99, 'b', transform=ax.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='left')
-    print(dft_sorted_dict)
-    print(xtb_sorted_dict)
 
-def draw_rp_types(ax, dft_rp_types, rgd1_rp_types, xtb_rp_types):
-    dft_sorted_dict = dict(sorted(dft_rp_types.items()))
-    rp_unique, dft_rp_counts = dft_sorted_dict.keys(), dft_sorted_dict.values()
-    xtb_sorted_dict = dict(sorted(xtb_rp_types.items()))
-    xtb_rp_counts = xtb_sorted_dict.values()
-    rgd1_rp_counts = [rgd1_rp_types[key] for key in rp_unique]
-    rp_types_str = [str(t) for t in rp_unique]
+def draw_rp_types(ax, our_rp_types):
+    sorted_dict = dict(sorted(our_rp_types.items()))
+    rp_types_unique, rp_counts = sorted_dict.keys(), sorted_dict.values()
+    rp_types_str = [str(t) for t in rp_types_unique]
 
-    x = np.arange(len(rp_types_str))
-    bar1 = ax.bar(x - 0.2, rgd1_rp_counts, width=0.1, alpha=alpha, label='RGD1')
-    bar2 = ax.bar(x, xtb_rp_counts, width=0.1, alpha=alpha, label='GFN2-xTB')
-    bar3 = ax.bar(x + 0.2, dft_rp_counts, width=0.1, alpha=alpha, label='DFT')
+    bar1 = ax.bar(rp_types_str, rp_counts, width=0.15, alpha=alpha, label='Our')
     ax.margins(y=0.1)
-    ax.bar_label(bar1, padding=1, fmt='%d', fontsize=bar_fontsize)
-    ax.bar_label(bar2, padding=1, fmt='%d', fontsize=bar_fontsize)
-    ax.bar_label(bar3, padding=1, fmt='%d', fontsize=bar_fontsize)
+    ax.bar_label(bar1, padding=1, fmt='%d', fontsize=8)
     ax.set_yscale('log')
     ax.set_ylim(bottom=10)
     ax.set_xticks(range(len(rp_types_str)))
@@ -85,25 +57,15 @@ def draw_rp_types(ax, dft_rp_types, rgd1_rp_types, xtb_rp_types):
     ax.set_ylabel('N$_{reactions}$', fontsize=axis_fontsize, fontweight='bold')
     ax.text(0.01, 0.99, 'c', transform=ax.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='left')
-    print(dft_sorted_dict)
-    print(xtb_sorted_dict)
 
-def draw_num_heavys(ax, dft_num_heavys, rgd1_num_heavys, xtb_num_heavys):
-    dft_sorted_dict = dict(sorted(dft_num_heavys.items()))
-    heavy_unique, dft_heavy_counts = dft_sorted_dict.keys(), dft_sorted_dict.values()
-    xtb_sorted_dict = dict(sorted(xtb_num_heavys.items()))
-    xtb_heavy_counts = xtb_sorted_dict.values()
-    rgd1_heavy_counts = [rgd1_num_heavys[key] for key in heavy_unique]
+def draw_num_heavys(ax, our_num_heavys):
+    sorted_dict = dict(sorted(our_num_heavys.items()))
+    heavy_unique, dft_heavy_counts = sorted_dict.keys(), sorted_dict.values()
     heavy_unique_str = ['4≥', '5', '6', '7', '8', '9', '10']
 
-    x = np.arange(len(heavy_unique_str))
-    bar1 = ax.bar(x - 0.2, rgd1_heavy_counts, width=0.1, alpha=alpha, label='RGD1')
-    bar2 = ax.bar(x, xtb_heavy_counts, width=0.1, alpha=alpha, label='GFN2-xTB')
-    bar3 = ax.bar(x + 0.2, dft_heavy_counts, width=0.1, alpha=alpha, label='DFT')
+    bar1 = ax.bar(heavy_unique_str, dft_heavy_counts, width=0.15, alpha=alpha, label='Our')
     ax.margins(y=0.1)
-    ax.bar_label(bar1, padding=1, fmt='%d', fontsize=bar_fontsize)
-    ax.bar_label(bar2, padding=1, fmt='%d', fontsize=bar_fontsize)
-    ax.bar_label(bar3, padding=1, fmt='%d', fontsize=bar_fontsize)
+    ax.bar_label(bar1, padding=1, fmt='%d', fontsize=8)
     ax.set_yscale('log')
     ax.set_ylim(bottom=10)
     ax.set_xticks(range(len(heavy_unique_str)))
@@ -113,8 +75,6 @@ def draw_num_heavys(ax, dft_num_heavys, rgd1_num_heavys, xtb_num_heavys):
     ax.set_ylabel('N$_{reactions}$', fontsize=axis_fontsize, fontweight='bold')
     ax.text(0.01, 0.99, 'd', transform=ax.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='left')
-    print(dft_sorted_dict)
-    print(xtb_sorted_dict)
 
 def draw_bond_changes(ax, our_bond_changes, draw_colorbar=True, maximum=None):
     elements = ['C', 'H', 'O', 'N', 'S', 'P', 'Cl', 'F', 'Si']
@@ -145,9 +105,7 @@ def draw_bond_changes(ax, our_bond_changes, draw_colorbar=True, maximum=None):
     else:
         ax.text(0.01, 0.99, 'e', transform=ax.transAxes,
             fontsize=14, fontweight='bold', va='top', ha='left')
-    print(our_bond_changes)
     return norm_max
-
 
 def aggregate_data(rxn_infos):
     adj_change_types = defaultdict(int)
@@ -214,30 +172,18 @@ def aggregate_data(rxn_infos):
 
     return (adj_change_types, rp_types, num_heavys, bond_changes, bo_change_types)
 
+
 if '__main__' == __name__:
 
     # load in data
     dft_statistics_file = 'reaction_statistics_dft.pkl'
     with open(dft_statistics_file, 'rb') as f:
         rxn_info_dict_dft = pickle.load(f)
-    
-    xtb_statistics_file = 'reaction_statistics_xtb.pkl'
-    with open(xtb_statistics_file, 'rb') as f:
-        rxn_info_dict_xtb = pickle.load(f)
 
-    rgd1_statistics_file = 'reaction_statistics_rgd1.pkl'
-    with open(rgd1_statistics_file, 'rb') as f:
-        rxn_info_dict_rgd1 = pickle.load(f)
-
+    # Aggregate data only for DFT results because of enormous xtb dataset size
     dft_rxn_infos = rxn_info_dict_dft.values()
     dft_adj_change_types, dft_rp_types, dft_num_heavys, dft_bond_changes, dft_bo_change_types = aggregate_data(dft_rxn_infos)
     print('Done with DFT data aggregation.')
-    xtb_rxn_infos = rxn_info_dict_xtb.values()
-    xtb_adj_change_types, xtb_rp_types, xtb_num_heavys, xtb_bond_changes, xtb_bo_change_types = aggregate_data(xtb_rxn_infos)
-    print('Done with xTB data aggregation.')
-    rgd1_rxn_infos = rxn_info_dict_rgd1.values()
-    rgd1_adj_change_types, rgd1_rp_types, rgd1_num_heavys, rgd1_bond_changes, rgd1_bo_change_types = aggregate_data(rgd1_rxn_infos)
-    print('Done with RGD1 data aggregation.')
 
     # Create a figure with 6 subplots
     fig = plt.figure(figsize=(18, 13))
@@ -246,8 +192,7 @@ if '__main__' == __name__:
     ax2 = plt.subplot2grid(shape=(3, 12), loc=(0, 6), colspan=6) # bond order changes
     ax3 = plt.subplot2grid(shape=(3, 12), loc=(1, 0), colspan=6) # rp types
     ax4 = plt.subplot2grid(shape=(3, 12), loc=(1, 6), colspan=6) # num heavys
-    ax5 = plt.subplot2grid(shape=(3, 12), loc=(2, 0), colspan=3) # bond change heatmap of xtb
-    ax6 = plt.subplot2grid(shape=(3, 12), loc=(2, 3), colspan=4) # bond change heatmap of dft
+    ax5 = plt.subplot2grid(shape=(3, 12), loc=(2, 0), colspan=4) # bond change heatmap
 
     # Miscellaneous settings
     alpha = 0.5
@@ -256,13 +201,12 @@ if '__main__' == __name__:
     tick_fontsize = 12
     bar_fontsize = 9
 
-    draw_adjacency_changes(ax1, dft_adj_change_types, rgd1_adj_change_types, xtb_adj_change_types)
-    draw_bond_order_changes(ax2, dft_bo_change_types, rgd1_bo_change_types, xtb_bo_change_types)
-    draw_rp_types(ax3, dft_rp_types, rgd1_rp_types, xtb_rp_types)
-    draw_num_heavys(ax4, dft_num_heavys, rgd1_num_heavys, xtb_num_heavys)
-    max = draw_bond_changes(ax5, xtb_bond_changes, False)
-    draw_bond_changes(ax6, dft_bond_changes, True, maximum=max)
+    draw_adjacency_changes(ax1, dft_adj_change_types)
+    draw_bond_order_changes(ax2, dft_bo_change_types)
+    draw_rp_types(ax3, dft_rp_types)
+    draw_num_heavys(ax4, dft_num_heavys)
+    max = draw_bond_changes(ax5, dft_bond_changes, draw_colorbar=True, maximum=None)
 
     plt.tight_layout()
-    plt.savefig('reaction_statistics_comparison.png', dpi=300)
+    plt.savefig('reaction_statistics.png', dpi=300)
     plt.show()
