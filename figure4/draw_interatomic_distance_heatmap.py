@@ -60,8 +60,14 @@ def pair_distance_heatmap_from_dict(pair_to_distances, distance_bins=None,
 
 if __name__ == '__main__':
 
+    import sys
     # Load sampled interatomic distance data
-    file_name = 'element_distance_sampled.npy'
+    try:
+        file_name = sys.argv[1]
+    except:
+        print ('File directory is not provided !!!')
+        print ('Ex: element_distance_sampled.npy')
+
     np_arr = np.load(file_name)
 
     # Run get_r_zeros.py first to generate r_zero_dict.pkl

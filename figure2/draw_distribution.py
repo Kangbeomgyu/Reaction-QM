@@ -175,8 +175,14 @@ def aggregate_data(rxn_infos):
 
 if '__main__' == __name__:
 
+    import sys
     # load in data
-    dft_statistics_file = 'reaction_statistics_dft.pkl'
+    try:
+        dft_statistics_file = sys.argv[1]
+    except:
+        print ('File directory is not provided !!!')
+        print ('Ex: reaction_statistics_dft.pkl')
+
     with open(dft_statistics_file, 'rb') as f:
         rxn_info_dict_dft = pickle.load(f)
 

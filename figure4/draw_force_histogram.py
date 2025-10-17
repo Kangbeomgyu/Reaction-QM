@@ -74,7 +74,11 @@ def plot_force_histograms_grid(
 if __name__ == '__main__':
 
     # Load sampled force data
-    file_name = 'element_force_dict_sampled.pkl'
+    try:
+        file_name = sys.argv[1]
+    except:
+        print ('File directory is not provided !!!')
+        print ('Ex: element_force_dict_sampled.pkl')
 
     elements_force_dict = {}
     with open(file_name, 'rb') as f:
