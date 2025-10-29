@@ -2,7 +2,7 @@ import sys
 import h5py
 
 # Switch the file path into 'GFN2_xTB.h5' if you want to read GFN2 data
-h5file = h5py.File('B3LYP_TZVP.h5', 'r')
+h5file = h5py.File('B3LYPD3_TZVP.h5', 'r')
 target = sys.argv[1] if len(sys.argv) > 1 else 'RXN_0000000001'
 if target not in h5file:
     raise ValueError(f"Target reaction '{target}' not found in the HDF5 file.")

@@ -50,7 +50,7 @@ if '__main__' == __name__:
         csv_file = sys.argv[1]
     except:
         print ('File directory is not provided !!!')
-        print ('Ex: DFT_reaction_info.csv')
+        print ('Ex: B3LYPD3_TZVP_reaction_infos.csv')
 
     dH = []
     dE_dag = []
