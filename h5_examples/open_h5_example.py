@@ -2,7 +2,7 @@ import sys
 import h5py
 
 def print_data(species_data):
-    smiles = species_data['smiles'].asstr()[()]
+    smiles = species_data['smiles'][()]
     EHG = species_data['EHG'][()]
     chg = species_data['charge'][()]
     multiplicity = species_data['multiplicity'][()]
