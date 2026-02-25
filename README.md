@@ -15,25 +15,39 @@ You may need these additional packages to reproduce the figures:
 - **pandas**
 - **Seaborn**
 
-# Handling HDF5 files
+# How to Use the Dataset
 
-Users can find two examplary codes for opening our HDF5-formatted dataset from ‘h5_examples’. These codes simply open and display the data within our HDF5 files; [Zenodo File Names], which can be found in https://doi.org/10.5281/zenodo.17377505. For the detailed explanation of data structure, please refer to our original paper.
+To facilitate easy access to our HDF5 dataset, we have included exemplary scripts in the `h5_examples` folder. You can use these to learn how to open the files and browse the stored reaction data.
 
-- **open_h5_example.py**: This script shows how to load one reaction data saved in **[REACTION FILE NAMES]**. By running this code, you can get exhaustive information (energies and structures of reactants, products, and transition state) included in one reaction entry printed to the terminal. You need to specify the HDF5 file path, and can optionally designate target reaction ID via a command-line argument. If no reaction is specified, the data for `RXN_0000000001` is displayed by default.
+1. Download the dataset from [Zenodo](https://zenodo.org/records/18551029).
+2. Run the examples in `h5_examples` to understand the data retrieval process.
+
+For a detailed explanation of the data schema and parameters, please refer to our original paper.
+
+### `open_h5_example.py`
+
+This script demonstrates how to retrieve and inspect reaction data from the `B3LYPD3_TZVP.h5` and `GFN2_xTB.h5` files.
+
+- **Functionality:** It prints comprehensive information for a single reaction entry to the terminal, including energies, charges, spin multiplicities and atomic structures (coordinates) for reactants, products, and a transition state (TS).
+- **Arguments:**
+    - `path`: (Required) Path to the HDF5 file.
+    - `rxn_id`: (Optional) The target reaction ID (e.g., `0000000001` or `RXN_0000000001`).
+- **Default Behavior:** If no reaction ID is specified, the script displays data for `RXN_0000000001` by default.
+- **Usage Example:**
     
     ```bash
-    python open_h5_example.py {HDF5 file path} RXN_XXXXXXXXXX
+    python open_h5_example.py path/to/hdf5_file RXN_XXXXXXXXXX
+    python open_h5_example.py path/to/hdf5_file XXXXXXXXXX
     ```
     
-    The result of executing the line above looks like:
-    
     ```bash
-    ---- Information of RXN_0000000001 ----
-    -------------------- P0 --------------------
-    E, H, G (Hartree): [-1496.81194528 -1496.750949   -1496.79139   ]
-    Charge : 0
-    Spin multiplicity : 1
-    xyz coordinates (Å):
+    ---- Information of RXN_0000000001 ----                             # Target reaction
+    -------------------- P0 --------------------                        # P0 indicates that it is the first product
+    SMILES: [Cl:1]/[C:2](=[C:3](\[Cl:4])[C:5]([Cl:6])([H:8])[H:9])[H:7] # Molecule SMILES
+    E, H, G (Hartree): [-1496.81194528 -1496.750949   -1496.79139   ]   # Single point energy, enthalpy, and Gibbs free energy
+    Charge : 0                                                          # Total charge of the molecule
+    Spin multiplicity : 1                                               # Spin multiplicity of the molecule
+    xyz coordinates (Å):                                                # The atomic number and its coordinate pairs, which looks like XYZ format
     17 2.173693895339966 -1.2708020210266113 -0.00038499999209307134
     6 0.48249301314353943 -0.8669030070304871 -3.999999989900971e-06
     6 -0.012853999622166157 0.36268100142478943 -3.999999989900971e-06
@@ -44,6 +58,7 @@ Users can find two examplary codes for opening our HDF5-formatted dataset from �
     1 -1.6959480047225952 1.331231951713562 -0.8849530220031738
     1 -1.6956050395965576 1.3309619426727295 0.8859279751777649
     -------------------- P1 --------------------
+    SMILES: [O:1]=[C:2]=[S:3]
     E, H, G (Hartree): [-511.60313098 -511.590172   -511.616464  ]
     Charge : 0
     Spin multiplicity : 1
@@ -52,6 +67,7 @@ Users can find two examplary codes for opening our HDF5-formatted dataset from �
     6 0.0 0.0 -0.5296980142593384
     16 0.0 0.0 1.0418260097503662
     -------------------- R0 --------------------
+    SMILES: [Cl:1][C@@:2](/[C:3]([Cl:4])=[C:5](\[Cl:6])[H:12])([C:8](=[O:7])[S:9][H:11])[H:10]
     E, H, G (Hartree): [-2008.39497467 -2008.321712   -2008.371614  ]
     Charge : 0
     Spin multiplicity : 1
@@ -68,7 +84,8 @@ Users can find two examplary codes for opening our HDF5-formatted dataset from �
     1 -0.4446449875831604 -1.4579579830169678 -0.15854200720787048
     1 3.3947060108184814 -0.19454999268054962 -1.5622650384902954
     1 -2.8135499954223633 1.3947529792785645 -0.19739599525928497
-    -------------------- TS --------------------
+    -------------------- TS --------------------                     # For TS, full reaction SMILES is saved in the 'smiles' dataset
+    SMILES: [Cl:1][C@@:2](/[C:3]([Cl:4])=[C:5](\[Cl:6])[H:12])([C:8](=[O:7])[S:9][H:11])[H:10]>>[Cl:1]/[C:2](=[C:3](\[Cl:4])[C:5]([Cl:6])([H:11])[H:12])[H:10].[O:7]=[C:8]=[S:9]
     E, H, G (Hartree): [-2008.33796771 -2008.269416   -2008.317115  ]
     Charge : 0
     Spin multiplicity : 1
@@ -85,19 +102,31 @@ Users can find two examplary codes for opening our HDF5-formatted dataset from �
     1 0.056154001504182816 0.1305759996175766 -1.6267789602279663
     1 -1.3897379636764526 0.44961801171302795 0.7889760136604309
     1 -1.9851959943771362 -1.4521069526672363 1.059762954711914
+    
     ```
     
-- **open_h5_irc_example.py**: We also provide IRC trajectories of every reaction from B3LYP-RXN dataset, which are saved in **[IRC FILE NAME]**. This code open a single IRC path, display all information of the path, and visualize its corresponding energy profile with Matplotlib. If you cannot see the plot pops up, modify code to save the plot instead of showing it. As we concatenated backward and forward IRC calculation results, you may want to rearrange the order of IRC images as shown in open_h5_irc_example.py.
-    
-    Following is a running example and results of open_h5_irc_example.py:
+
+### `open_h5_irc_example.py`
+
+This script is designed for analyzing **Intrinsic Reaction Coordinate (IRC) trajectories** from the B3LYP-RXN dataset, specifically stored in `B3LYPD3_TZVP_IRC.h5` .
+
+- **Functionality:** It opens a single IRC path, prints all associated metadata, and generates an energy profile visualization using **Matplotlib** .
+- **Arguments:**
+    - `path`: (Required) Path to the IRC HDF5 file.
+    - `rxn_id`: (Optional) The target reaction ID (e.g., `0000000001` or `RXN_0000000001`).
+- **Path Reordering:** Since the dataset simply concatenates backward and forward IRC results, this script demonstrates how to rearrange the steps to ensure a continuous and physical reaction coordinate.
+- **Energy Profile**: You can view the energy profile plot by deleting the '#' in the last line of the code. The interactive plot window will not appear if your remote server environment is not compatible.
+- **Default Behavior:** If no reaction ID is specified, the script displays data for `RXN_0000000001` by default.
+- **Usage Example:**
     
     ```bash
-    python open_h5_irc_example.py {HDF5 file path of B3LYP-IRC} RXN_XXXXXXXXXX
+    python open_h5_irc_example.py path/to/irc_hdf5_file RXN_XXXXXXXXXX
+    python open_h5_irc_example.py path/to/irc_hdf5_file XXXXXXXXXX
     ```
     
     ```bash
     ---- RXN_0000000001 ----
-    Atomic numbers: [17  6  6 17  6 17  8  6 16  1  1  1]
+    Atomic numbers: [17  6  6 17  6 17  8  6 16  1  1  1] # This order applies to both coordinates and forces
     Coordinates: [[[ 2.291088 -0.438615 -1.082921]
       [ 0.599259 -0.1264   -0.724673]
       [-0.104452 -0.974889  0.158511]
@@ -228,13 +257,19 @@ Users can find two examplary codes for opening our HDF5-formatted dataset from �
       [-1.4142148e-02 -1.5199540e-02 -5.5213929e-03]
       [ 4.2401096e-03  2.3548736e-03 -2.8585526e-03]]]
     ```
-    <img width="800" height="800" alt="irc_open_example" src="https://github.com/user-attachments/assets/2a3eb23b-2c76-420d-a8b8-f9ed253edc64" />
+    <img width="800" height="800" alt="irc_open_example" src="https://github.com/user-attachments/assets/20e31ec6-afd3-4ca6-8610-3be67868175f" />
+
 
 
 # Drawing Figures
 
-- **figure2/draw_distribution.py**: This script plots the reaction feature distribution shown in Fig. 2. It requires the `reaction_statistics_gfn.pkl`, `reaction_statistics_dft.pkl`, or `reaction_statistics_rgd1.py` data file, which are included in the repository.
-- **figure4/draw_dH_vs_dE_dag.py**: This script generates the distribution of reaction enthalpies (ΔH) and activation energies (ΔE‡) shown in Fig. 4. You need CSV file containing reaction energetics, which can be downloaded from our Zenodo page.
-- **figure4/plot_correlation.py**: This code compares ΔH and ΔE‡ calculated at the B3LYP-D3/TZVP level of theory and GFN2-xTB level and plot the results like Fig. 4. This uses ‘common_reaction_info.csv’ in the same folder.
-- **figure4/plot_rmsd.py**: Root mean square distances (RMSD) between two transition state geometries generated with different level of theories are saved in ‘ts_rmsd.csv’. **plot_rmsd.py** visualizes this calculation results into a histogram.
-- **figure5/draw_force_histogram.py, draw_interatomic_distance_heatmap.py**: These two codes plot the force and interatomic distance distribution shown in  ****Fig. 5**.**, respectively. Users should run **get_r_zeros.py** in advance to draw the distribution.
+We provide scripts to reproduce the figures presented in our paper.
+
+- **Figure 2: Feature Distribution**
+    - **`draw_distribution.py`** : Plots the reaction feature distributions shown in **Fig. 2.** We uploaded the sample statistics result, `reaction_statistics_dft.pkl`, to test the plotting code.
+- **Figure 4: Energetics & Correlation**
+    - **`draw_dH_vs_dE_dag.py`** : Generates the distribution of reaction enthalpies and activation energies. Requires the energetics CSV file from **Zenodo.**
+    - **`plot_correlation.py`** : Compares reaction enthalpies and activation energies calculated at the **B3LYP-D3/TZVP** and **GFN2-xTB** levels of theory. Uses `common_reaction_info.csv` from **Zenodo**.
+    - **`plot_rmsd.py`** : Visualizes the **Root Mean Square Distance (RMSD)** between transition state geometries from different levels of theory using `ts_rmsd.csv` (included in this repository).
+- **Figure 5: Forces & Atomic Distances**
+    - `draw_force_histogram.py` and `draw_interatomic_distance_heatmap.py`: Plots the force and distance distribution shown in **Fig. 5**. Due to the large size of the original dataset, we provide a small sample of distances and forces in the same folder. Users must run **`get_r_zeros.py`** before drawing the distributions to process the necessary reference data.
