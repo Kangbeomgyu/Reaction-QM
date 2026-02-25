@@ -1,42 +1,53 @@
 import sys
 import h5py
 
-# Switch the file path into 'GFN2_xTB.h5' if you want to read GFN2 data
-h5file = h5py.File('B3LYPD3_TZVP.h5', 'r')
-target = sys.argv[1] if len(sys.argv) > 1 else 'RXN_0000000001'
-if target not in h5file:
-    raise ValueError(f"Target reaction '{target}' not found in the HDF5 file.")
-
-for rxn_name_key, reaction_point_dict in h5file.items():
-    if rxn_name_key != target:
-        continue
-    print(f"---- Information of {rxn_name_key} ----")
-
-    reactants_data_dict = reaction_point_dict.get('R')
-    products_data_dict = reaction_point_dict.get('P')
-    ts_data_dict = reaction_point_dict.get('TS')
-
-    # Parse data of reactants
-    for idx, (species_key, species_data) in enumerate(reactants_data_dict.items()):
-        print(f"---- Reactant {idx+1}: {species_key} ----")
-        print(f"E, H, G : {species_data['EHG'][()]}")
-        print('xyz coordinates:')
-        for atom_num, coord in zip(species_data['atomic_number'][()], species_data['coords'][()]):
-            print(f"{atom_num} {coord[0]} {coord[1]} {coord[2]}")
-
-    # Parse data of products
-    for idx, (species_key, species_data) in enumerate(products_data_dict.items()):
-        print(f"---- Product {idx+1}: {species_key} ----")
-        print(f"E, H, G : {species_data['EHG'][()]}")
-        print('xyz coordinates:')
-        for atom_num, coord in zip(species_data['atomic_number'][()], species_data['coords'][()]):
-            print(f"{atom_num} {coord[0]} {coord[1]} {coord[2]}")
-
-    # Parse data of transition state
-    print("---- Transition State ----")
-    print(f"E, H, G : {ts_data_dict['EHG'][()]}")
-    print('xyz coordinates:')
-    for atom_num, coord in zip(ts_data_dict['atomic_number'][()], ts_data_dict['coords'][()]):
+def print_data(species_data):
+    smiles = species_data['smiles'].asstr()[()]
+    EHG = species_data['EHG'][()]
+    chg = species_data['charge'][()]
+    multiplicity = species_data['multiplicity'][()]
+    z_list = species_data['atomic_numbers'][()]
+    coords = species_data['coordinates'][()]
+    print(f"SMILES: {smiles}")
+    print(f"E, H, G (Hartree): {EHG}")
+    print(f"Charge : {chg}")
+    print(f"Spin multiplicity : {multiplicity}")
+    print('xyz coordinates (Å):')
+    for atom_num, coord in zip(z_list, coords):
         print(f"{atom_num} {coord[0]} {coord[1]} {coord[2]}")
 
+# Enter the HDF5 file path and target reaction id (optional)
+file_name = sys.argv[1]
+h5file = h5py.File(file_name, 'r')
+target = sys.argv[2] if len(sys.argv) > 2 else 'RXN_0000000001'
+
+# Check the format of the data ...
+length = 10
+if target.isdigit():
+    rxn_number = target.rjust(length,'0')
+    target = f'RXN_{rxn_number}'
+
+found = False
+for root_key, root_value in h5file.items(): # root_key: RXN_A to RXN_B, root_value: dict of molecule + ts data
+    rxn_name_keys = root_value.keys() 
+    print (f'Checking files in {root_key} ...')
+    if target not in rxn_name_keys:
+        continue
+
+    print ('Found desired key !')
+    found = True
+    molecules_and_ts_dict = root_value[target] 
+    print(f"---- Information of {target} ----")
+
+    # Parse data of reactants, products, and transition state
+    for molecule_tag, molecule_data in molecules_and_ts_dict.items():
+        print(f"-------------------- {molecule_tag} --------------------")
+        print_data(molecule_data)
+
     break  # Print only one reaction
+
+if not found:
+    print (f'Desired reaction (={rxn_name}) not found !!')
+    print ('Check the key again ...')
+
+

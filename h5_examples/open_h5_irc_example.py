@@ -29,22 +29,26 @@ def draw_energy_profile(energy_array):
     plt.show()
 
 # Switch the file path if you want to read another IRC data
-h5file = h5py.File('B3LYPD3_TZVP_IRC_4_15.h5', 'r')
-target = sys.argv[1] if len(sys.argv) > 1 else 'RXN_0000000001'
+file_name = sys.argv[1]
+h5file = h5py.File(file_name, 'r')
+target = sys.argv[2] if len(sys.argv) > 2 else 'RXN_0000000001'
 
-for num_atoms_key, TS_dict in h5file.items():
-    for TS_name_key, TS_info_dict in TS_dict.items():
+# Check the format of the data ...
+length = 10
+if target.isdigit():
+    rxn_number = target.rjust(length,'0')
+    target = f'RXN_{rxn_number}'
 
-        if TS_name_key != target:
-            continue
-        print(f"---- {TS_name_key} ----")
-        numbers = TS_info_dict['numbers'][()]
-        coords = TS_info_dict['coords'][()]
-        energies = TS_info_dict['energies'][()]
-        forces = TS_info_dict['forces'][()]
-        print(f"Atomic numbers: {numbers}")
-        print(f"Coordinates: {coords}")
-        print(f"Energies: {energies}")
-        print(f"Forces: {forces}")
-        draw_energy_profile(energies)
-        exit()
+TS_info_dict = h5file[target]
+print(f"---- {target} ----")
+numbers = TS_info_dict['atomic_numbers'][()]
+coords = TS_info_dict['coordinates'][()]
+energies = TS_info_dict['energies'][()]
+forces = TS_info_dict['forces'][()]
+print(f"Atomic numbers: {numbers}")
+print(f"Coordinates: {coords}")
+print(f"Energies: {energies}")
+print(f"Forces: {forces}")
+
+# Activate this to see IRC trajectory ...
+#draw_energy_profile(energies)
